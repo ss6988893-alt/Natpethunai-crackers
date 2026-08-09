@@ -10,9 +10,19 @@ const slides = [
     label: "Trusted quality · Direct shop pricing",
   },
   {
+    src: "/banner-combo-festival.png",
+    alt: "Natpe Thunai family combo festival with ₹3,000 to ₹10,000 options",
+    label: "Four family combos · One brighter celebration",
+  },
+  {
     src: "/banner-offer.jpg",
     alt: "Natpe Thunai Crackers seasonal offer banner",
     label: "Big festive value · Family favourites",
+  },
+  {
+    src: "/banner-premium-collection.png",
+    alt: "Natpe Thunai premium fireworks collection with sparklers, flower pots and aerial shots",
+    label: "Premium collection · Celebration ready",
   },
 ];
 
