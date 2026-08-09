@@ -125,24 +125,24 @@ export default function HomeContent() {
             </figure>
           ))}
           <div className="hero-vignette" aria-hidden="true" />
-          <div className="hero-caption">
-            <span>{slides[slide].label}</span>
-            <div className="hero-actions">
-              <a className="button button-primary" href="#combos">
-                Explore combos <span aria-hidden="true">↓</span>
-              </a>
-              <a
-                className="button button-ghost"
-                href="https://wa.me/918524090862?text=Hello%20Natpe%20Thunai%20Crackers%2C%20I%20would%20like%20to%20place%20an%20order."
-                target="_blank"
-                rel="noreferrer"
-              >
-                WhatsApp us <span aria-hidden="true">↗</span>
-              </a>
-            </div>
-          </div>
           <button className="slider-arrow prev" type="button" onClick={() => changeSlide(slide - 1)} aria-label="Previous banner">‹</button>
           <button className="slider-arrow next" type="button" onClick={() => changeSlide(slide + 1)} aria-label="Next banner">›</button>
+        </div>
+        <div className="hero-caption">
+          <span>{slides[slide].label}</span>
+          <div className="hero-actions">
+            <a className="button button-primary" href="#combos">
+              Explore combos <span aria-hidden="true">↓</span>
+            </a>
+            <a
+              className="button button-ghost"
+              href="https://wa.me/918524090862?text=Hello%20Natpe%20Thunai%20Crackers%2C%20I%20would%20like%20to%20place%20an%20order."
+              target="_blank"
+              rel="noreferrer"
+            >
+              WhatsApp us <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
         <div className="slider-controls" role="tablist" aria-label="Choose banner">
           {slides.map((item, index) => (

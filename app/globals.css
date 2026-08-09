@@ -252,16 +252,24 @@ img {
 .menu-toggle.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 .hero-slider {
+  padding-top: 26px;
   position: relative;
   background: #020306;
   border-bottom: 1px solid var(--line);
 }
 
 .hero-stage {
-  height: clamp(420px, 50vw, 720px);
-  min-height: 420px;
+  width: min(1120px, calc(100% - 48px));
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 2 / 1;
+  margin-inline: auto;
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(255, 189, 69, 0.18);
+  border-radius: 24px;
+  background: #020306;
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.36);
 }
 
 .hero-slide {
@@ -282,7 +290,7 @@ img {
 .hero-slide img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
 }
 
@@ -297,16 +305,15 @@ img {
 }
 
 .hero-caption {
-  width: min(1180px, calc(100% - 120px));
-  position: absolute;
-  left: 50%;
-  bottom: 34px;
+  width: min(1120px, calc(100% - 48px));
+  position: relative;
   z-index: 4;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  transform: translateX(-50%);
+  margin-inline: auto;
+  padding: 18px 0 36px;
 }
 
 .hero-caption > span {
@@ -1608,9 +1615,10 @@ h2 em {
   .primary-nav > a:not(.nav-cta) { padding: 15px 13px; }
   .primary-nav > a:not(.nav-cta)::after { display: none; }
   .nav-cta { margin-top: 7px; text-align: center; }
-  .hero-stage { height: clamp(340px, 58vw, 470px); min-height: 340px; }
-  .hero-slide img { object-fit: cover; }
-  .hero-caption { width: calc(100% - 48px); bottom: 30px; }
+  .hero-slider { padding-top: 14px; }
+  .hero-stage { width: calc(100% - 24px); height: auto; min-height: 0; aspect-ratio: 2 / 1; border-radius: 16px; }
+  .hero-slide img { object-fit: contain; }
+  .hero-caption { width: calc(100% - 24px); padding: 14px 0 34px; }
   .hero-caption > span { display: none; }
   .hero-actions { width: 100%; justify-content: center; }
   .slider-arrow { width: 40px; height: 40px; font-size: 1.6rem; }
@@ -1648,10 +1656,10 @@ h2 em {
   .brand strong { font-size: 1.02rem; }
   .brand small { font-size: 0.55rem; }
   .brand-mark { width: 37px; height: 37px; }
-  .hero-stage { height: 340px; }
-  .hero-slide img { object-fit: cover; object-position: center; }
+  .hero-stage { width: calc(100% - 16px); height: auto; min-height: 0; aspect-ratio: 2 / 1; border-radius: 12px; }
+  .hero-slide img { object-fit: contain; object-position: center; }
   .hero-actions .button { min-height: 43px; padding: 11px 15px; font-size: 0.72rem; }
-  .slider-arrow { top: 45%; }
+  .slider-arrow { top: 50%; }
   .trust-strip { padding-inline: 8px; }
   .trust-strip > div { justify-content: flex-start; gap: 9px; padding: 15px 8px; }
   .trust-strip > div > span { width: 30px; height: 30px; font-size: 0.75rem; }
