@@ -131,8 +131,13 @@ export default function HomeContent() {
               <a className="button button-primary" href="#combos">
                 Explore combos <span aria-hidden="true">↓</span>
               </a>
-              <a className="button button-ghost" href="tel:+918524090862">
-                Call to order
+              <a
+                className="button button-ghost"
+                href="https://wa.me/918524090862?text=Hello%20Natpe%20Thunai%20Crackers%2C%20I%20would%20like%20to%20place%20an%20order."
+                target="_blank"
+                rel="noreferrer"
+              >
+                WhatsApp us <span aria-hidden="true">↗</span>
               </a>
             </div>
           </div>
@@ -292,7 +297,14 @@ export default function HomeContent() {
             <p>Call, WhatsApp or visit us at Athupalayam Stop on Sivakasi Road.</p>
           </div>
           <div className="cta-actions">
-            <a className="button button-primary" href="tel:+918524090862">Call 85240 90862</a>
+            <a
+              className="button button-primary"
+              href="https://wa.me/918524090862?text=Hello%20Natpe%20Thunai%20Crackers%2C%20I%20would%20like%20to%20place%20an%20order."
+              target="_blank"
+              rel="noreferrer"
+            >
+              WhatsApp your order <span aria-hidden="true">↗</span>
+            </a>
             <a className="button button-ghost" href="/contact">View map <span aria-hidden="true">→</span></a>
           </div>
         </Reveal>

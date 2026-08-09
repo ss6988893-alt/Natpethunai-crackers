@@ -3,8 +3,10 @@
 import type { FormEvent } from "react";
 import Reveal from "../components/Reveal";
 
-const mapQuery = "Athupalayam Bus Stop, Sivakasi Road, Virudhunagar, Tamil Nadu";
-const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`;
+const latitude = 9.5036621;
+const longitude = 77.8277664;
+const mapLink =
+  "https://www.google.com/maps/place/9%C2%B030'13.2%22N+77%C2%B049'40.0%22E/@9.5036621,77.8251915,17z/data=!3m1!4b1!4m4!3m3!8m2!3d9.5036621!4d77.8277664?hl=en&entry=ttu";
 
 export default function ContactContent() {
   const sendEnquiry = (event: FormEvent<HTMLFormElement>) => {
@@ -27,6 +29,17 @@ export default function ContactContent() {
           <p className="eyebrow"><span /> We&apos;re nearby</p>
           <h1>Visit. Call.<br /><em>Celebrate.</em></h1>
           <p>Questions about a combo or planning a shop visit? Our team is only a call or WhatsApp message away.</p>
+          <div className="contact-hero-actions">
+            <a
+              className="button button-primary"
+              href="https://wa.me/918524090862?text=Hello%20Natpe%20Thunai%20Crackers%2C%20I%20would%20like%20to%20enquire."
+              target="_blank"
+              rel="noreferrer"
+            >
+              WhatsApp us <span aria-hidden="true">↗</span>
+            </a>
+            <a className="button button-ghost" href="tel:+918524090862">Call now</a>
+          </div>
         </Reveal>
         <Reveal className="contact-hero-orbit" delay={120}>
           <div className="contact-orbit" aria-hidden="true">
@@ -65,13 +78,13 @@ export default function ContactContent() {
       <section className="location-section section-shell">
         <Reveal className="map-wrap">
           <iframe
-            title="Map showing Natpe Thunai Crackers near Athupalayam Stop on Sivakasi Road"
-            src={`https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`}
+            title="Exact map location of Natpe Thunai Crackers"
+            src={`https://www.google.com/maps?q=${latitude},${longitude}&z=17&output=embed`}
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
             allowFullScreen
           />
-          <div className="map-pin-label"><span aria-hidden="true">⌖</span> Athupalayam Stop</div>
+          <div className="map-pin-label"><span aria-hidden="true">⌖</span> Exact shop location</div>
         </Reveal>
         <Reveal className="location-copy" delay={100}>
           <p className="eyebrow"><span /> Shop location</p>

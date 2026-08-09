@@ -332,6 +332,7 @@ img {
 
 .hero-actions,
 .intro-actions,
+.contact-hero-actions,
 .cta-actions {
   display: flex;
   align-items: center;
@@ -1244,7 +1245,11 @@ h2 em {
 }
 
 .contact-hero h1 { margin-bottom: 26px; }
-.contact-hero-copy > p:last-child { max-width: 590px; color: var(--muted); line-height: 1.75; }
+.contact-hero-copy > p:not(.eyebrow) { max-width: 590px; color: var(--muted); line-height: 1.75; }
+
+.contact-hero-actions {
+  margin-top: 30px;
+}
 
 .contact-hero-orbit {
   min-height: 360px;
@@ -1656,6 +1661,7 @@ h2 em {
   h2 { font-size: clamp(2.35rem, 12vw, 3.3rem); }
   .intro-section { padding-block: 75px; }
   .intro-actions { align-items: flex-start; flex-direction: column; }
+  .contact-hero-actions { align-items: flex-start; flex-direction: column; }
   .intro-feature { min-height: 360px; padding: 28px; }
   .products-section { padding-block: 45px 90px; }
   .product-grid, .combo-grid { grid-template-columns: 1fr; }
