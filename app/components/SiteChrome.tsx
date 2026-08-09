@@ -41,7 +41,9 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
 
       <header className="site-header">
         <a className="brand" href="/" onClick={closeMenu} aria-label="Natpe Thunai Crackers home">
-          <span className="brand-mark" aria-hidden="true">✦</span>
+          <span className="brand-logo" aria-hidden="true">
+            <img src="/brand-logo.png" alt="" />
+          </span>
           <span>
             <strong>Natpe Thunai</strong>
             <small>Crackers · Virudhunagar</small>
@@ -81,7 +83,9 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
       <footer className="site-footer">
         <div className="footer-grid">
           <div className="footer-brand">
-            <span className="brand-mark" aria-hidden="true">✦</span>
+            <span className="brand-logo">
+              <img src="/brand-logo.png" alt="Natpe Thunai Crackers friendship and fireworks emblem" />
+            </span>
             <div>
               <strong>Natpe Thunai Crackers</strong>
               <p>Celebrations chosen with care, priced with honesty.</p>

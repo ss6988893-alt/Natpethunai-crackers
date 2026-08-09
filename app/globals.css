@@ -146,18 +146,23 @@ img {
   gap: 12px;
 }
 
-.brand-mark {
-  width: 42px;
-  height: 42px;
-  display: inline-grid;
-  place-items: center;
+.brand-logo {
+  width: 50px;
+  height: 50px;
+  display: inline-block;
   flex: 0 0 auto;
-  color: #130900;
-  font-size: 1.35rem;
-  background: linear-gradient(145deg, #fff0ac, var(--gold) 58%, #e67c21);
-  border-radius: 50% 50% 45% 55%;
-  box-shadow: 0 0 26px rgba(255, 189, 69, 0.2);
-  transform: rotate(-8deg);
+  overflow: hidden;
+  border: 1px solid rgba(255, 189, 69, 0.55);
+  border-radius: 14px;
+  background: #050505;
+  box-shadow: 0 0 26px rgba(255, 189, 69, 0.16);
+}
+
+.brand-logo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .brand > span:last-child {
@@ -1113,6 +1118,12 @@ h2 em {
   gap: 15px;
 }
 
+.footer-brand .brand-logo {
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
+}
+
 .footer-brand strong {
   display: block;
   margin: 3px 0 8px;
@@ -1655,7 +1666,7 @@ h2 em {
   .section-shell { width: calc(100% - 28px); }
   .brand strong { font-size: 1.02rem; }
   .brand small { font-size: 0.55rem; }
-  .brand-mark { width: 37px; height: 37px; }
+  .brand-logo { width: 43px; height: 43px; border-radius: 12px; }
   .hero-stage { width: calc(100% - 16px); height: auto; min-height: 0; aspect-ratio: 2 / 1; border-radius: 12px; }
   .hero-slide img { object-fit: contain; object-position: center; }
   .hero-actions .button { min-height: 43px; padding: 11px 15px; font-size: 0.72rem; }
