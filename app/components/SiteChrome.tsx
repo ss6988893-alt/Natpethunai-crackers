@@ -69,7 +69,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
           aria-label="Primary navigation"
         >
           <a className={path === "/" ? "active" : ""} href="/" onClick={closeMenu}>Home</a>
-          <a href="/#products" onClick={closeMenu}>Top products</a>
+          <a className={path.startsWith("/products") ? "active" : ""} href="/products" onClick={closeMenu}>Products</a>
           <a href="/#combos" onClick={closeMenu}>Combos</a>
           <a className={path.startsWith("/contact") ? "active" : ""} href="/contact" onClick={closeMenu}>Contact</a>
           <a className="nav-cta" href="https://wa.me/918524090862?text=Hello%20Natpe%20Thunai%20Crackers%2C%20I%20would%20like%20to%20enquire." target="_blank" rel="noreferrer">
@@ -102,7 +102,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
           </div>
           <div>
             <h2>Quick links</h2>
-            <a href="/#products">Top products</a>
+            <a href="/products">Product catalogue</a>
             <a href="/#combos">Combo boxes</a>
             <a href="/contact">Contact &amp; map</a>
           </div>

@@ -195,7 +195,7 @@ export default function HomeContent() {
             crackers, honest direct-shop value and joyful combo boxes for every family.
           </p>
           <div className="intro-actions">
-            <a className="button button-primary" href="#products">View top products</a>
+            <a className="button button-primary" href="/products">View all products</a>
             <a className="text-link" href="/contact">Find our shop <span aria-hidden="true">→</span></a>
           </div>
         </Reveal>
