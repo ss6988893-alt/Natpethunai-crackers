@@ -12,9 +12,9 @@ const categories = [
     colour: "ember",
     description: "Golden fountains and colourful ground displays that rise into a bright plume.",
     products: [
-      { name: "Golden Flower Pots", note: "A warm golden fountain with a classic festive look.", tag: "Classic glow" },
-      { name: "Colour Flower Pots", note: "Colourful fountain effects for a vibrant celebration.", tag: "Colour favourite" },
-      { name: "Deluxe Fountains", note: "A larger fountain-style display for the evening highlight.", tag: "Grand display" },
+      { name: "Golden Flower Pots", note: "A warm golden fountain with a classic festive look.", tag: "Classic glow", originalPrice: 900 },
+      { name: "Colour Flower Pots", note: "Colourful fountain effects for a vibrant celebration.", tag: "Colour favourite", originalPrice: 1200 },
+      { name: "Deluxe Fountains", note: "A larger fountain-style display for the evening highlight.", tag: "Grand display", originalPrice: 1800 },
     ],
   },
   {
@@ -25,9 +25,9 @@ const categories = [
     colour: "teal",
     description: "Fast-spinning ground wheels with circles of colour, light and festive energy.",
     products: [
-      { name: "Ground Chakkar Big", note: "A bright spinning wheel with a lively circular display.", tag: "Customer pick" },
-      { name: "Deluxe Chakkars", note: "A richer wheel effect with a fuller stream of sparks.", tag: "Deluxe range" },
-      { name: "Special Ground Wheels", note: "A colourful ground-spinning selection for family evenings.", tag: "Colour wheel" },
+      { name: "Ground Chakkar Big", note: "A bright spinning wheel with a lively circular display.", tag: "Customer pick", originalPrice: 700 },
+      { name: "Deluxe Chakkars", note: "A richer wheel effect with a fuller stream of sparks.", tag: "Deluxe range", originalPrice: 1000 },
+      { name: "Special Ground Wheels", note: "A colourful ground-spinning selection for family evenings.", tag: "Colour wheel", originalPrice: 1500 },
     ],
   },
   {
@@ -38,9 +38,9 @@ const categories = [
     colour: "gold",
     description: "Hand-held festive favourites in classic electric, colourful and longer-lasting styles.",
     products: [
-      { name: "Electric Sparklers", note: "The familiar bright sparkle for traditional celebrations.", tag: "Best seller" },
-      { name: "Colour Sparklers", note: "Colour-tinted sparkle effects for brighter festive photos.", tag: "Colour range" },
-      { name: "Long Sparklers", note: "A longer sparkler option for extended celebration moments.", tag: "Longer glow" },
+      { name: "Electric Sparklers", note: "The familiar bright sparkle for traditional celebrations.", tag: "Best seller", originalPrice: 300 },
+      { name: "Colour Sparklers", note: "Colour-tinted sparkle effects for brighter festive photos.", tag: "Colour range", originalPrice: 500 },
+      { name: "Long Sparklers", note: "A longer sparkler option for extended celebration moments.", tag: "Longer glow", originalPrice: 800 },
     ],
   },
   {
@@ -51,9 +51,9 @@ const categories = [
     colour: "violet",
     description: "Coordinated aerial sequences designed to create an exciting sky-show finale.",
     products: [
-      { name: "12-Shot Celebration", note: "A compact multi-shot sequence for a crisp aerial highlight.", tag: "Compact show" },
-      { name: "30-Shot Sky Show", note: "A balanced sequence with more colour, rhythm and sky coverage.", tag: "Popular show" },
-      { name: "60-Shot Grand Finale", note: "A larger coordinated aerial sequence for the final celebration.", tag: "Big finale" },
+      { name: "12-Shot Celebration", note: "A compact multi-shot sequence for a crisp aerial highlight.", tag: "Compact show", originalPrice: 1500 },
+      { name: "30-Shot Sky Show", note: "A balanced sequence with more colour, rhythm and sky coverage.", tag: "Popular show", originalPrice: 3000 },
+      { name: "60-Shot Grand Finale", note: "A larger coordinated aerial sequence for the final celebration.", tag: "Big finale", originalPrice: 6000 },
     ],
   },
   {
@@ -64,9 +64,9 @@ const categories = [
     colour: "rose",
     description: "Curated assortments that bring popular festive varieties together in one easy box.",
     products: [
-      { name: "Family Starter Box", note: "An approachable mix of sparklers, fountains and ground favourites.", tag: "Family starter" },
-      { name: "Celebration Selection", note: "A balanced assortment with more colour and product variety.", tag: "Mixed variety" },
-      { name: "Premium Festival Box", note: "A fuller gift selection with premium festive highlights.", tag: "Premium pick" },
+      { name: "Family Starter Box", note: "An approachable mix of sparklers, fountains and ground favourites.", tag: "Family starter", originalPrice: 2500 },
+      { name: "Celebration Selection", note: "A balanced assortment with more colour and product variety.", tag: "Mixed variety", originalPrice: 4000 },
+      { name: "Premium Festival Box", note: "A fuller gift selection with premium festive highlights.", tag: "Premium pick", originalPrice: 7500 },
     ],
   },
   {
@@ -77,18 +77,28 @@ const categories = [
     colour: "red",
     description: "High-impact sound crackers for suitable open spaces, subject to local rules and availability.",
     products: [
-      { name: "Classic Atom Bombs", note: "A traditional high-impact sound cracker for adult-supervised use.", tag: "High impact" },
-      { name: "Hydro Bomb Range", note: "A strong sound-cracker selection; ask our team for safe-use guidance.", tag: "Sound range" },
-      { name: "Giant Crackers", note: "Larger sound crackers for approved open areas and responsible handling.", tag: "Adult guidance" },
+      { name: "Classic Atom Bombs", note: "A traditional high-impact sound cracker for adult-supervised use.", tag: "High impact", originalPrice: 600 },
+      { name: "Hydro Bomb Range", note: "A strong sound-cracker selection; ask our team for safe-use guidance.", tag: "Sound range", originalPrice: 1100 },
+      { name: "Giant Crackers", note: "Larger sound crackers for approved open areas and responsible handling.", tag: "Adult guidance", originalPrice: 2000 },
     ],
   },
 ] as const;
 
 type CategoryId = "all" | (typeof categories)[number]["id"];
 
-function whatsappLink(product: string) {
+const priceFormatter = new Intl.NumberFormat("en-IN");
+
+function offerPrice(originalPrice: number) {
+  return Math.round(originalPrice * 0.3);
+}
+
+function formatPrice(price: number) {
+  return `₹${priceFormatter.format(price)}`;
+}
+
+function whatsappLink(product: string, price: number) {
   return `https://wa.me/918524090862?text=${encodeURIComponent(
-    `Hello Natpe Thunai Crackers, I would like to check the price and availability of ${product}.`,
+    `Hello Natpe Thunai Crackers, I would like to order ${product} at the 70% offer price of ${formatPrice(price)}. Please confirm availability.`,
   )}`;
 }
 
@@ -172,15 +182,21 @@ export default function ProductsContent() {
                 <Reveal key={product.name} delay={(categoryIndex === 0 ? productIndex : 0) * 70}>
                   <article className="catalog-product-card">
                     <div className="catalog-product-art" aria-hidden="true">
+                      <strong className="catalog-discount-badge">70% OFF</strong>
                       <span>{category.icon}</span>
                       <i />
                     </div>
                     <div className="catalog-product-body">
                       <span className="catalog-product-tag">{product.tag}</span>
                       <h3>{product.name}</h3>
+                      <div className="catalog-product-price" aria-label={`70% offer price ${formatPrice(offerPrice(product.originalPrice))}, originally ${formatPrice(product.originalPrice)}`}>
+                        <span>{formatPrice(product.originalPrice)}</span>
+                        <strong>{formatPrice(offerPrice(product.originalPrice))}</strong>
+                        <small>70% offer</small>
+                      </div>
                       <p>{product.note}</p>
-                      <a className="product-enquire" href={whatsappLink(product.name)} target="_blank" rel="noreferrer">
-                        Ask price &amp; availability <span aria-hidden="true">↗</span>
+                      <a className="product-enquire" href={whatsappLink(product.name, offerPrice(product.originalPrice))} target="_blank" rel="noreferrer">
+                        Order on WhatsApp <span aria-hidden="true">↗</span>
                       </a>
                     </div>
                   </article>

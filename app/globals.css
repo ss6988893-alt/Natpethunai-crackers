@@ -1920,6 +1920,23 @@ h2 em {
   filter: blur(30px);
 }
 
+.catalog-discount-badge {
+  position: absolute;
+  z-index: 3;
+  top: 16px;
+  right: 16px;
+  padding: 7px 10px;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff3d1f, #c71512);
+  box-shadow: 0 8px 25px rgba(218, 31, 21, 0.32);
+  font-size: 0.64rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  animation: offerPulse 2.2s ease-in-out infinite;
+}
+
 .catalog-category.tone-teal .catalog-product-art i { background: rgba(59, 218, 205, 0.18); }
 .catalog-category.tone-gold .catalog-product-art i { background: rgba(255, 189, 69, 0.2); }
 .catalog-category.tone-violet .catalog-product-art i { background: rgba(157, 93, 255, 0.2); }
@@ -1952,6 +1969,39 @@ h2 em {
   margin: 0 0 10px;
   font-family: Georgia, serif;
   font-size: 1.35rem;
+}
+
+.catalog-product-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 0 0 13px;
+}
+
+.catalog-product-price > span {
+  position: relative;
+  color: #777b84;
+  font-size: 0.88rem;
+  font-weight: 750;
+  text-decoration: line-through;
+  text-decoration-color: #ff604b;
+  text-decoration-thickness: 2px;
+}
+
+.catalog-product-price > strong {
+  color: var(--gold-pale);
+  font-family: Georgia, serif;
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.catalog-product-price > small {
+  color: #ff7d61;
+  font-size: 0.59rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .catalog-product-body p {
@@ -2044,6 +2094,11 @@ h2 em {
   0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.62); }
   70% { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+@keyframes offerPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 8px 25px rgba(218, 31, 21, 0.28); }
+  50% { transform: scale(1.05); box-shadow: 0 8px 30px rgba(255, 65, 35, 0.48); }
 }
 
 @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
