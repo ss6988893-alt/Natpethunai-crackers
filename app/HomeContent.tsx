@@ -15,8 +15,8 @@ const slides = [
     label: "Four family combos · One brighter celebration",
   },
   {
-    src: "/banner-offer.jpg",
-    alt: "Natpe Thunai Crackers seasonal offer banner",
+    src: "/banner-offer-brock-speed.png",
+    alt: "Natpe Thunai Crackers 70 percent seasonal offer banner with Brock and Speed greeting customers",
     label: "Big festive value · Family favourites",
   },
   {
