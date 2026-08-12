@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Reveal from "../components/Reveal";
+import { CART_STORAGE_KEY, parseStoredCart, type CartItem } from "../cart";
 
 const categories = [
   {
@@ -96,17 +97,11 @@ function formatPrice(price: number) {
   return `₹${priceFormatter.format(price)}`;
 }
 
-type CartItem = {
-  name: string;
-  price: number;
-  quantity: number;
-};
-
 export default function ProductsContent() {
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [cartHydrated, setCartHydrated] = useState(false);
   const visibleCategories =
     activeCategory === "all"
       ? categories
@@ -119,6 +114,16 @@ export default function ProductsContent() {
     () => Object.fromEntries(cart.map((item) => [item.name, item.quantity])),
     [cart],
   );
+
+  useEffect(() => {
+    setCart(parseStoredCart(window.localStorage.getItem(CART_STORAGE_KEY)));
+    setCartHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!cartHydrated) return;
+    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+  }, [cart, cartHydrated]);
 
   useEffect(() => {
     if (!cartOpen) return;
@@ -155,41 +160,7 @@ export default function ProductsContent() {
   };
 
   const openCart = () => {
-    setCheckoutOpen(false);
     setCartOpen(true);
-  };
-
-  const sendOrder = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!cart.length) return;
-
-    const form = new FormData(event.currentTarget);
-    const itemLines = cart.map(
-      (item, index) =>
-        `${index + 1}. ${item.name} x ${item.quantity} - ${formatPrice(item.price * item.quantity)}`,
-    );
-    const message = [
-      "Hello Natpe Thunai Crackers, I would like to place an order enquiry.",
-      "",
-      "CUSTOMER DETAILS",
-      `Name: ${form.get("name")}`,
-      `Mobile: ${form.get("mobile")}`,
-      `Email: ${form.get("email")}`,
-      `Address: ${form.get("address")}`,
-      "",
-      "SELECTED PRODUCTS",
-      ...itemLines,
-      "",
-      `Estimated total: ${formatPrice(cartTotal)}`,
-      "",
-      "No online payment has been made. Please confirm product availability, final price and order details.",
-    ].join("\n");
-
-    window.open(
-      `https://wa.me/918524090862?text=${encodeURIComponent(message)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
   };
 
   return (
@@ -205,8 +176,8 @@ export default function ProductsContent() {
           </p>
           <div className="catalog-hero-actions">
             <a className="button button-primary" href="#catalog">Explore products <span aria-hidden="true">↓</span></a>
-            <a className="button button-ghost" href="https://wa.me/918524090862?text=Hello%20Natpe%20Thunai%20Crackers%2C%20please%20help%20me%20choose%20products." target="_blank" rel="noreferrer">
-              Help me choose <span aria-hidden="true">↗</span>
+            <a className="button button-ghost" href="/contact">
+              Need help choosing? <span aria-hidden="true">→</span>
             </a>
           </div>
         </Reveal>
@@ -343,83 +314,44 @@ export default function ProductsContent() {
           <section className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title">
             <header className="cart-header">
               <div>
-                <p>{checkoutOpen ? "Final step" : "Your selection"}</p>
-                <h2 id="cart-title">{checkoutOpen ? "Send order details" : "Shopping cart"}</h2>
+                <p>Your selection</p>
+                <h2 id="cart-title">Shopping cart</h2>
               </div>
               <button type="button" onClick={() => setCartOpen(false)} aria-label="Close cart">×</button>
             </header>
 
-            {!checkoutOpen ? (
-              <>
-                <div className="cart-items">
-                  {cart.length ? cart.map((item) => (
-                    <article className="cart-item" key={item.name}>
-                      <div className="cart-item-art" aria-hidden="true">✦</div>
-                      <div className="cart-item-info">
-                        <h3>{item.name}</h3>
-                        <p>{formatPrice(item.price)} each</p>
-                        <div className="quantity-control" aria-label={`Quantity for ${item.name}`}>
-                          <button type="button" onClick={() => changeQuantity(item.name, item.quantity - 1)} aria-label={`Remove one ${item.name}`}>−</button>
-                          <span>{item.quantity}</span>
-                          <button type="button" onClick={() => changeQuantity(item.name, item.quantity + 1)} aria-label={`Add one ${item.name}`}>+</button>
-                        </div>
-                      </div>
-                      <div className="cart-item-total">
-                        <strong>{formatPrice(item.price * item.quantity)}</strong>
-                        <button type="button" onClick={() => changeQuantity(item.name, 0)}>Remove</button>
-                      </div>
-                    </article>
-                  )) : (
-                    <div className="empty-cart"><span>▱</span><h3>Your cart is empty</h3><p>Add products from the catalogue to continue.</p></div>
-                  )}
-                </div>
+            <div className="cart-items">
+              {cart.length ? cart.map((item) => (
+                <article className="cart-item" key={item.name}>
+                  <div className="cart-item-art" aria-hidden="true">✦</div>
+                  <div className="cart-item-info">
+                    <h3>{item.name}</h3>
+                    <p>{formatPrice(item.price)} each</p>
+                    <div className="quantity-control" aria-label={`Quantity for ${item.name}`}>
+                      <button type="button" onClick={() => changeQuantity(item.name, item.quantity - 1)} aria-label={`Remove one ${item.name}`}>−</button>
+                      <span>{item.quantity}</span>
+                      <button type="button" onClick={() => changeQuantity(item.name, item.quantity + 1)} aria-label={`Add one ${item.name}`}>+</button>
+                    </div>
+                  </div>
+                  <div className="cart-item-total">
+                    <strong>{formatPrice(item.price * item.quantity)}</strong>
+                    <button type="button" onClick={() => changeQuantity(item.name, 0)}>Remove</button>
+                  </div>
+                </article>
+              )) : (
+                <div className="empty-cart"><span>▱</span><h3>Your cart is empty</h3><p>Add products from the catalogue to continue.</p></div>
+              )}
+            </div>
 
-                {cart.length > 0 && (
-                  <footer className="cart-footer">
-                    <div className="cart-total"><span>Estimated total</span><strong>{formatPrice(cartTotal)}</strong></div>
-                    <p><span>✓</span> No online payment. The shop will confirm stock and final price on WhatsApp.</p>
-                    <button className="cart-checkout-button" type="button" onClick={() => setCheckoutOpen(true)}>
-                      Continue with your details <span aria-hidden="true">→</span>
-                    </button>
-                    <button className="continue-shopping" type="button" onClick={() => setCartOpen(false)}>Continue shopping</button>
-                  </footer>
-                )}
-              </>
-            ) : (
-              <form className="checkout-form" onSubmit={sendOrder}>
-                <button className="checkout-back" type="button" onClick={() => setCheckoutOpen(false)}>← Back to cart</button>
-                <div className="checkout-note"><span aria-hidden="true">✓</span><p><strong>No payment needed</strong>Your request opens in WhatsApp for confirmation.</p></div>
-
-                <label>
-                  <span>Full name</span>
-                  <input name="name" type="text" autoComplete="name" placeholder="Enter your full name" required minLength={2} />
-                </label>
-                <label>
-                  <span>Mobile number</span>
-                  <input name="mobile" type="tel" autoComplete="tel" inputMode="tel" placeholder="10-digit mobile number" required pattern="[0-9+ ()-]{10,18}" />
-                </label>
-                <label>
-                  <span>Email address</span>
-                  <input name="email" type="email" autoComplete="email" placeholder="you@example.com" required />
-                </label>
-                <label>
-                  <span>Delivery address</span>
-                  <textarea name="address" autoComplete="street-address" placeholder="House, street, area, city and PIN code" required minLength={10} rows={4} />
-                </label>
-
-                <div className="checkout-summary">
-                  <div><strong>Selected products</strong><span>{cartCount} {cartCount === 1 ? "item" : "items"}</span></div>
-                  <ul>
-                    {cart.map((item) => <li key={item.name}><span>{item.name} × {item.quantity}</span><strong>{formatPrice(item.price * item.quantity)}</strong></li>)}
-                  </ul>
-                  <div className="checkout-summary-total"><span>Estimated total</span><strong>{formatPrice(cartTotal)}</strong></div>
-                </div>
-
-                <button className="whatsapp-order-button" type="submit">
-                  <span aria-hidden="true">✆</span> Send selected items via WhatsApp
-                </button>
-                <p className="form-disclaimer">Only the products shown above and your entered details will be included in the WhatsApp message.</p>
-              </form>
+            {cart.length > 0 && (
+              <footer className="cart-footer">
+                <div className="cart-total"><span>Estimated total</span><strong>{formatPrice(cartTotal)}</strong></div>
+                <p><span>✓</span> No online payment. You will enter your details on the next page.</p>
+                <a className="cart-checkout-button" href="/checkout">
+                  Go to customer details form <span aria-hidden="true">→</span>
+                </a>
+                <button className="continue-shopping" type="button" onClick={() => setCartOpen(false)}>Continue shopping</button>
+              </footer>
             )}
           </section>
         </div>

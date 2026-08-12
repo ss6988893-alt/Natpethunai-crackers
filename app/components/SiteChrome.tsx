@@ -118,7 +118,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
         </div>
       </footer>
 
-      {!path.startsWith("/products") && (
+      {!path.startsWith("/products") && !path.startsWith("/checkout") && (
         <a
           className="whatsapp-float"
           href="https://wa.me/918524090862?text=Hello%20Natpe%20Thunai%20Crackers%2C%20I%20would%20like%20to%20enquire."
