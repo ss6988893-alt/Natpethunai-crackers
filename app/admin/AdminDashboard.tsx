@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import styles from "./admin.module.css";
 
@@ -114,10 +115,10 @@ export default function AdminDashboard({
     <div className={styles.adminShell}>
       <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ""}`}>
         <div className={styles.sidebarTop}>
-          <a className={styles.brand} href="/" aria-label="Natpe Thunai Crackers storefront">
+          <Link className={styles.brand} href="/" aria-label="Natpe Thunai Crackers storefront">
             <span className={styles.brandMark}><img src="/brand-logo.png" alt="" /></span>
             <span><strong>Natpe Thunai</strong><small>Store administration</small></span>
-          </a>
+          </Link>
           <button className={styles.closeMenu} onClick={() => setSidebarOpen(false)} type="button" aria-label="Close menu">×</button>
         </div>
 
@@ -135,8 +136,8 @@ export default function AdminDashboard({
             </button>
           ))}
           <p>Store</p>
-          <a href="/" target="_blank"><span aria-hidden="true">↗</span>View storefront</a>
-          <a href="/contact" target="_blank"><span aria-hidden="true">⌖</span>Contact page</a>
+          <Link href="/" target="_blank"><span aria-hidden="true">↗</span>View storefront</Link>
+          <Link href="/contact" target="_blank"><span aria-hidden="true">⌖</span>Contact page</Link>
         </nav>
 
         <div className={styles.sidebarHelp}>

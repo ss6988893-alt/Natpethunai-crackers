@@ -2,18 +2,13 @@ import assert from "node:assert/strict";
 import { access, readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
-const developmentPreviewMeta =
-  /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
-const templateRoot = new URL("../", import.meta.url);
-const previewRoot = new URL("../app/_sites-preview/", import.meta.url);
-
-async function render() {
+async function render(pathname = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
+  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${pathname}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("http://localhost/", {
+    new Request(`http://localhost${pathname}`, {
       headers: { accept: "text/html" },
     }),
     {
@@ -28,64 +23,87 @@ async function render() {
   );
 }
 
-test("server-renders the starter loading skeleton", async () => {
+test("server-renders the finished Natpe Thunai storefront", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, developmentPreviewMeta);
-  assert.match(html, /<title>Your site is taking shape<\/title>/i);
-  assert.match(html, /Building your site/);
-  assert.match(html, /Your site is taking shape/);
-  assert.match(
-    html,
-    /Your first version will appear here automatically when it’s ready\./,
-  );
-  assert.doesNotMatch(html, /Codex/);
-  assert.match(html, /react-loading-skeleton/);
-  assert.match(html, /role="status"/);
+  assert.match(html, /Natpe Thunai Crackers/i);
+  assert.match(html, /Your celebration,/i);
+  assert.match(html, /banner-quality\.jpg/);
+  assert.match(html, /banner-combo-festival\.png/);
+  assert.match(html, /banner-offer-brock-speed\.png/);
+  assert.match(html, /banner-premium-collection\.png/);
+  assert.match(html, /href="\/products"/);
+  assert.match(html, /href="\/contact"/);
+  assert.doesNotMatch(html, /codex-preview|Building your site|react-loading-skeleton/i);
 });
 
-test("keeps the loading skeleton scoped and disposable", async () => {
-  const [preview, css, page, layout, packageJson, files] = await Promise.all([
-    readFile(new URL("SkeletonPreview.tsx", previewRoot), "utf8"),
-    readFile(new URL("preview.css", previewRoot), "utf8"),
-    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../package.json", import.meta.url), "utf8"),
-    readdir(previewRoot),
-  ]);
+test("server-renders the product catalogue with prices and cart controls", async () => {
+  const response = await render("/products");
+  assert.equal(response.status, 200);
 
-  assert.deepEqual(files.sort(), ["SkeletonPreview.tsx", "preview.css"]);
-  assert.match(preview, /from "react-loading-skeleton"/);
-  assert.match(preview, /baseColor="#eceae7"/);
-  assert.match(preview, /highlightColor="#f9f8f6"/);
-  assert.match(preview, /duration=\{2\.8\}/);
-  assert.match(preview, /sites-skeleton-search-placeholder/);
-  assert.match(packageJson, /"react-loading-skeleton": "3\.5\.0"/);
+  const html = await response.text();
+  assert.match(html, /Find your kind/i);
+  assert.match(html, /All products/);
+  assert.match(html, /Golden Flower Pots/);
+  assert.match(html, /60-Shot Grand Finale/);
+  assert.match(html, /70% offer/i);
+  assert.match(html, /Add to cart/i);
+  assert.doesNotMatch(html, /react-loading-skeleton|Starter Project/i);
+});
 
-  const shellIndex = preview.indexOf('className="sites-skeleton-shell"');
-  const statusIndex = preview.indexOf('className="sites-skeleton-status"');
-  assert.ok(shellIndex >= 0 && statusIndex > shellIndex);
-  assert.match(css, /position:\s*fixed/);
-  assert.match(css, /inset:\s*0/);
-  assert.match(css, /opacity:\s*0\.52/);
-  assert.match(css, /prefers-reduced-motion:\s*reduce/);
-  assert.doesNotMatch(css, /#020617|canvas|pets|progress/i);
-  assert.doesNotMatch(
-    preview,
-    /loading-spinner|status-mark|status-progress|canvas|cookie|random/i,
-  );
+test("keeps one WhatsApp submission point and the bill-style PDF estimate", async () => {
+  const [products, checkout, estimatePdf, cart, layout, packageJson, publicFiles] =
+    await Promise.all([
+      readFile(new URL("../app/products/ProductsContent.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/checkout/CheckoutContent.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/estimate-pdf.ts", import.meta.url), "utf8"),
+      readFile(new URL("../app/cart.ts", import.meta.url), "utf8"),
+      readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../package.json", import.meta.url), "utf8"),
+      readdir(new URL("../public/", import.meta.url)),
+    ]);
 
-  assert.match(page, /export const metadata:\s*Metadata/);
-  assert.match(page, /"codex-preview": "development"/);
-  assert.match(page, /<SkeletonPreview \/>/);
-  assert.match(layout, /title:\s*"Starter Project"/);
-  assert.doesNotMatch(layout, /codex-preview|_sites-preview|themeColor|\bViewport\b/);
-  assert.doesNotMatch(css, /(^|\s)(html|body)\s*\{/m);
+  assert.match(products, /addToCart/);
+  assert.match(products, /href="\/checkout"/);
+  assert.doesNotMatch(products, /wa\.me/);
 
-  await assert.rejects(
-    access(new URL("public/_sites-preview", templateRoot)),
-  );
+  assert.equal((checkout.match(/wa\.me\/918524090862/g) ?? []).length, 1);
+  assert.match(checkout, /downloadEstimatePdf/);
+  assert.match(checkout, /name="name"/);
+  assert.match(checkout, /name="mobile"/);
+  assert.match(checkout, /name="address"/);
+
+  assert.match(estimatePdf, /NATPE THUNAI CRACKERS/);
+  assert.match(estimatePdf, /ORDER ESTIMATE/);
+  assert.match(estimatePdf, /NOT A TAX INVOICE/);
+  assert.match(estimatePdf, /Discount \(70%\)/);
+  assert.match(cart, /natpe-thunai-cart/);
+
+  assert.match(packageJson, /"jspdf"/);
+  assert.doesNotMatch(packageJson, /drizzle|"motion"/);
+  assert.match(layout, /\/brand-logo\.png/);
+  assert.doesNotMatch(layout, /favicon\.png/);
+
+  const removedAssets = [
+    "banner-offer.jpg",
+    "brand-logo-source.png",
+    "favicon.png",
+    "vanakkam-strongman-v1.png",
+    "vanakkam-younger-v1.png",
+  ];
+  for (const asset of removedAssets) assert.ok(!publicFiles.includes(asset));
+
+  for (const asset of [
+    "brand-logo.png",
+    "og.png",
+    "banner-quality.jpg",
+    "banner-combo-festival.png",
+    "banner-offer-brock-speed.png",
+    "banner-premium-collection.png",
+  ]) {
+    await access(new URL(`../public/${asset}`, import.meta.url));
+  }
 });

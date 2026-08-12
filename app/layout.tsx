@@ -23,9 +23,9 @@ export async function generateMetadata(): Promise<Metadata> {
     description:
       "Quality crackers, family combos and festive favourites at direct shop prices on Sivakasi Road, Virudhunagar.",
     icons: {
-      icon: [{ url: "/favicon.png", type: "image/png" }],
-      shortcut: "/favicon.png",
-      apple: "/favicon.png",
+      icon: [{ url: "/brand-logo.png", type: "image/png" }],
+      shortcut: "/brand-logo.png",
+      apple: "/brand-logo.png",
     },
     openGraph: {
       title: "Natpe Thunai Crackers",

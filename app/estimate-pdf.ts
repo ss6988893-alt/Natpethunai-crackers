@@ -67,11 +67,6 @@ export async function createEstimatePdf(details: EstimateDetails) {
   const margin = 10;
   const right = pageWidth - margin;
   const contentWidth = pageWidth - margin * 2;
-  const black = "#202020";
-  const gray = "#eeeeee";
-  const lightGray = "#f7f7f7";
-  const orange = "#d95023";
-
   const line = (x1: number, y1: number, x2: number, y2: number, width = 0.25) => {
     doc.setDrawColor(32, 32, 32);
     doc.setLineWidth(width);

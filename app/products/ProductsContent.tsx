@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Reveal from "../components/Reveal";
-import { CART_STORAGE_KEY, parseStoredCart, type CartItem } from "../cart";
+import {
+  getCartSnapshot,
+  getServerCartSnapshot,
+  subscribeToCart,
+  updateStoredCart,
+} from "../cart";
 
 const categories = [
   {
@@ -99,9 +105,12 @@ function formatPrice(price: number) {
 
 export default function ProductsContent() {
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [cartHydrated, setCartHydrated] = useState(false);
+  const cart = useSyncExternalStore(
+    subscribeToCart,
+    getCartSnapshot,
+    getServerCartSnapshot,
+  );
   const visibleCategories =
     activeCategory === "all"
       ? categories
@@ -114,16 +123,6 @@ export default function ProductsContent() {
     () => Object.fromEntries(cart.map((item) => [item.name, item.quantity])),
     [cart],
   );
-
-  useEffect(() => {
-    setCart(parseStoredCart(window.localStorage.getItem(CART_STORAGE_KEY)));
-    setCartHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!cartHydrated) return;
-    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-  }, [cart, cartHydrated]);
 
   useEffect(() => {
     if (!cartOpen) return;
@@ -140,7 +139,7 @@ export default function ProductsContent() {
   }, [cartOpen]);
 
   const addToCart = (name: string, price: number, originalPrice: number) => {
-    setCart((current) => {
+    updateStoredCart((current) => {
       const existing = current.find((item) => item.name === name);
       if (existing) {
         return current.map((item) =>
@@ -154,7 +153,7 @@ export default function ProductsContent() {
   };
 
   const changeQuantity = (name: string, quantity: number) => {
-    setCart((current) =>
+    updateStoredCart((current) =>
       quantity <= 0
         ? current.filter((item) => item.name !== name)
         : current.map((item) => (item.name === name ? { ...item, quantity } : item)),
@@ -169,7 +168,7 @@ export default function ProductsContent() {
     <>
       <section className="catalog-hero section-shell">
         <Reveal className="catalog-hero-copy">
-          <p className="catalog-breadcrumb"><a href="/">Home</a><span>／</span>Products</p>
+          <p className="catalog-breadcrumb"><Link href="/">Home</Link><span>／</span>Products</p>
           <p className="eyebrow"><span /> Six ways to celebrate</p>
           <h1>Find your kind<br />of <em>sparkle.</em></h1>
           <p>
@@ -178,9 +177,9 @@ export default function ProductsContent() {
           </p>
           <div className="catalog-hero-actions">
             <a className="button button-primary" href="#catalog">Explore products <span aria-hidden="true">↓</span></a>
-            <a className="button button-ghost" href="/contact">
+            <Link className="button button-ghost" href="/contact">
               Need help choosing? <span aria-hidden="true">→</span>
-            </a>
+            </Link>
           </div>
         </Reveal>
         <Reveal className="catalog-hero-visual" delay={120}>
@@ -295,8 +294,8 @@ export default function ProductsContent() {
             <p>Explore our ready-made ₹3K–₹10K combos or ask us for a custom recommendation.</p>
           </div>
           <div className="cta-actions">
-            <a className="button button-primary" href="/#combos">View combo boxes</a>
-            <a className="button button-ghost" href="/contact">Contact the shop <span aria-hidden="true">→</span></a>
+            <Link className="button button-primary" href="/#combos">View combo boxes</Link>
+            <Link className="button button-ghost" href="/contact">Contact the shop <span aria-hidden="true">→</span></Link>
           </div>
         </Reveal>
       </section>
@@ -349,9 +348,9 @@ export default function ProductsContent() {
               <footer className="cart-footer">
                 <div className="cart-total"><span>Estimated total</span><strong>{formatPrice(cartTotal)}</strong></div>
                 <p><span>✓</span> No online payment. You will enter your details on the next page.</p>
-                <a className="cart-checkout-button" href="/checkout">
+                <Link className="cart-checkout-button" href="/checkout">
                   Go to customer details form <span aria-hidden="true">→</span>
-                </a>
+                </Link>
                 <button className="continue-shopping" type="button" onClick={() => setCartOpen(false)}>Continue shopping</button>
               </footer>
             )}

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const phonePrimary = "+918524090862";
@@ -44,7 +45,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
       </div>
 
       <header className="site-header">
-        <a className="brand" href="/" onClick={closeMenu} aria-label="Natpe Thunai Crackers home">
+        <Link className="brand" href="/" onClick={closeMenu} aria-label="Natpe Thunai Crackers home">
           <span className="brand-logo" aria-hidden="true">
             <img src="/brand-logo.png" alt="" />
           </span>
@@ -52,7 +53,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
             <strong>Natpe Thunai</strong>
             <small>Crackers · Virudhunagar</small>
           </span>
-        </a>
+        </Link>
 
         <button
           className={`menu-toggle ${menuOpen ? "is-open" : ""}`}
@@ -72,10 +73,10 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
           className={`primary-nav ${menuOpen ? "is-open" : ""}`}
           aria-label="Primary navigation"
         >
-          <a className={path === "/" ? "active" : ""} href="/" onClick={closeMenu}>Home</a>
-          <a className={path.startsWith("/products") ? "active" : ""} href="/products" onClick={closeMenu}>Products</a>
-          <a href="/#combos" onClick={closeMenu}>Combos</a>
-          <a className={path.startsWith("/contact") ? "active" : ""} href="/contact" onClick={closeMenu}>Contact</a>
+          <Link className={path === "/" ? "active" : ""} href="/" onClick={closeMenu}>Home</Link>
+          <Link className={path.startsWith("/products") ? "active" : ""} href="/products" onClick={closeMenu}>Products</Link>
+          <Link href="/#combos" onClick={closeMenu}>Combos</Link>
+          <Link className={path.startsWith("/contact") ? "active" : ""} href="/contact" onClick={closeMenu}>Contact</Link>
           <a className="nav-cta" href="https://wa.me/918524090862?text=Hello%20Natpe%20Thunai%20Crackers%2C%20I%20would%20like%20to%20enquire." target="_blank" rel="noreferrer">
             WhatsApp us <span aria-hidden="true">↗</span>
           </a>
@@ -106,10 +107,10 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
           </div>
           <div>
             <h2>Quick links</h2>
-            <a href="/products">Product catalogue</a>
-            <a href="/#combos">Combo boxes</a>
-            <a href="/contact">Contact &amp; map</a>
-            <a href="/admin">Admin access</a>
+            <Link href="/products">Product catalogue</Link>
+            <Link href="/#combos">Combo boxes</Link>
+            <Link href="/contact">Contact &amp; map</Link>
+            <Link href="/admin">Admin access</Link>
           </div>
         </div>
         <div className="footer-bottom">

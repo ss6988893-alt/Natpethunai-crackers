@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { CART_STORAGE_KEY, parseStoredCart, type CartItem } from "../cart";
+import Link from "next/link";
+import { useRef, useState, useSyncExternalStore, type FormEvent } from "react";
+import {
+  getCartSnapshot,
+  getServerCartSnapshot,
+  subscribeToCart,
+} from "../cart";
 import { downloadEstimatePdf, type EstimateCustomer } from "../estimate-pdf";
 
 const priceFormatter = new Intl.NumberFormat("en-IN");
@@ -34,18 +39,25 @@ function customerFromForm(form: FormData): EstimateCustomer {
   };
 }
 
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerHydratedSnapshot = () => false;
+
 export default function CheckoutContent() {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const cart = useSyncExternalStore(
+    subscribeToCart,
+    getCartSnapshot,
+    getServerCartSnapshot,
+  );
+  const loaded = useSyncExternalStore(
+    subscribeToHydration,
+    getHydratedSnapshot,
+    getServerHydratedSnapshot,
+  );
   const [estimateNumber] = useState(createEstimateNumber);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [pdfError, setPdfError] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
-
-  useEffect(() => {
-    setCart(parseStoredCart(window.localStorage.getItem(CART_STORAGE_KEY)));
-    setLoaded(true);
-  }, []);
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -144,7 +156,7 @@ export default function CheckoutContent() {
         <p className="eyebrow"><span /> Your cart</p>
         <h1>No products selected yet.</h1>
         <p>Choose the crackers you want first, then return here to send one complete order enquiry.</p>
-        <a className="button button-primary" href="/products">Browse all products <span aria-hidden="true">→</span></a>
+        <Link className="button button-primary" href="/products">Browse all products <span aria-hidden="true">→</span></Link>
       </section>
     );
   }
@@ -152,7 +164,7 @@ export default function CheckoutContent() {
   return (
     <section className="checkout-page section-shell">
       <div className="checkout-page-heading">
-        <p className="catalog-breadcrumb"><a href="/products">Products</a><span>／</span>Customer details</p>
+        <p className="catalog-breadcrumb"><Link href="/products">Products</Link><span>／</span>Customer details</p>
         <p className="eyebrow"><span /> One final step</p>
         <h1>Tell us where to<br /><em>reach you.</em></h1>
         <p>Fill in your details and submit once. WhatsApp will open with your customer information and every selected product already included.</p>
@@ -217,7 +229,7 @@ export default function CheckoutContent() {
 
           <div className="checkout-order-total"><span>Estimated total</span><strong>{formatPrice(cartTotal)}</strong></div>
           <p>Final total may change based on seasonal availability. The shop will confirm before accepting your order.</p>
-          <a href="/products">← Edit selected products</a>
+          <Link href="/products">← Edit selected products</Link>
         </aside>
       </div>
     </section>
