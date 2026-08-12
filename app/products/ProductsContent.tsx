@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import Reveal from "../components/Reveal";
 
 const categories = [
@@ -96,18 +96,101 @@ function formatPrice(price: number) {
   return `₹${priceFormatter.format(price)}`;
 }
 
-function whatsappLink(product: string, price: number) {
-  return `https://wa.me/918524090862?text=${encodeURIComponent(
-    `Hello Natpe Thunai Crackers, I would like to order ${product} at the 70% offer price of ${formatPrice(price)}. Please confirm availability.`,
-  )}`;
-}
+type CartItem = {
+  name: string;
+  price: number;
+  quantity: number;
+};
 
 export default function ProductsContent() {
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
   const visibleCategories =
     activeCategory === "all"
       ? categories
       : categories.filter((category) => category.id === activeCategory);
+
+  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+
+  const quantities = useMemo(
+    () => Object.fromEntries(cart.map((item) => [item.name, item.quantity])),
+    [cart],
+  );
+
+  useEffect(() => {
+    if (!cartOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setCartOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [cartOpen]);
+
+  const addToCart = (name: string, price: number) => {
+    setCart((current) => {
+      const existing = current.find((item) => item.name === name);
+      if (existing) {
+        return current.map((item) =>
+          item.name === name ? { ...item, quantity: item.quantity + 1 } : item,
+        );
+      }
+      return [...current, { name, price, quantity: 1 }];
+    });
+  };
+
+  const changeQuantity = (name: string, quantity: number) => {
+    setCart((current) =>
+      quantity <= 0
+        ? current.filter((item) => item.name !== name)
+        : current.map((item) => (item.name === name ? { ...item, quantity } : item)),
+    );
+  };
+
+  const openCart = () => {
+    setCheckoutOpen(false);
+    setCartOpen(true);
+  };
+
+  const sendOrder = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!cart.length) return;
+
+    const form = new FormData(event.currentTarget);
+    const itemLines = cart.map(
+      (item, index) =>
+        `${index + 1}. ${item.name} x ${item.quantity} - ${formatPrice(item.price * item.quantity)}`,
+    );
+    const message = [
+      "Hello Natpe Thunai Crackers, I would like to place an order enquiry.",
+      "",
+      "CUSTOMER DETAILS",
+      `Name: ${form.get("name")}`,
+      `Mobile: ${form.get("mobile")}`,
+      `Email: ${form.get("email")}`,
+      `Address: ${form.get("address")}`,
+      "",
+      "SELECTED PRODUCTS",
+      ...itemLines,
+      "",
+      `Estimated total: ${formatPrice(cartTotal)}`,
+      "",
+      "No online payment has been made. Please confirm product availability, final price and order details.",
+    ].join("\n");
+
+    window.open(
+      `https://wa.me/918524090862?text=${encodeURIComponent(message)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  };
 
   return (
     <>
@@ -117,8 +200,8 @@ export default function ProductsContent() {
           <p className="eyebrow"><span /> Six ways to celebrate</p>
           <h1>Find your kind<br />of <em>sparkle.</em></h1>
           <p>
-            Browse our cracker collection category by category. Choose a product and
-            send a direct WhatsApp enquiry for current pricing and availability.
+            Browse sale prices, add your favourites to the cart and send your complete
+            order request to us on WhatsApp. No online payment is required.
           </p>
           <div className="catalog-hero-actions">
             <a className="button button-primary" href="#catalog">Explore products <span aria-hidden="true">↓</span></a>
@@ -195,9 +278,17 @@ export default function ProductsContent() {
                         <small>70% offer</small>
                       </div>
                       <p>{product.note}</p>
-                      <a className="product-enquire" href={whatsappLink(product.name, offerPrice(product.originalPrice))} target="_blank" rel="noreferrer">
-                        Order on WhatsApp <span aria-hidden="true">↗</span>
-                      </a>
+                      <button
+                        className={`product-enquire ${quantities[product.name] ? "is-added" : ""}`}
+                        type="button"
+                        onClick={() => addToCart(product.name, offerPrice(product.originalPrice))}
+                        aria-label={`Add ${product.name} to cart for ${formatPrice(offerPrice(product.originalPrice))}`}
+                      >
+                        {quantities[product.name]
+                          ? `Add another · ${quantities[product.name]} in cart`
+                          : "Add to cart"}
+                        <span aria-hidden="true">{quantities[product.name] ? "+" : "→"}</span>
+                      </button>
                     </div>
                   </article>
                 </Reveal>
@@ -236,6 +327,103 @@ export default function ProductsContent() {
           </div>
         </Reveal>
       </section>
+
+      {cartCount > 0 && !cartOpen && (
+        <button className="floating-cart" type="button" onClick={openCart} aria-label={`Open cart with ${cartCount} items`}>
+          <span className="floating-cart-icon" aria-hidden="true">▱</span>
+          <span><strong>View cart</strong><small>{cartCount} {cartCount === 1 ? "item" : "items"} · {formatPrice(cartTotal)}</small></span>
+          <b aria-hidden="true">→</b>
+        </button>
+      )}
+
+      {cartOpen && (
+        <div className="cart-overlay" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setCartOpen(false);
+        }}>
+          <section className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+            <header className="cart-header">
+              <div>
+                <p>{checkoutOpen ? "Final step" : "Your selection"}</p>
+                <h2 id="cart-title">{checkoutOpen ? "Send order details" : "Shopping cart"}</h2>
+              </div>
+              <button type="button" onClick={() => setCartOpen(false)} aria-label="Close cart">×</button>
+            </header>
+
+            {!checkoutOpen ? (
+              <>
+                <div className="cart-items">
+                  {cart.length ? cart.map((item) => (
+                    <article className="cart-item" key={item.name}>
+                      <div className="cart-item-art" aria-hidden="true">✦</div>
+                      <div className="cart-item-info">
+                        <h3>{item.name}</h3>
+                        <p>{formatPrice(item.price)} each</p>
+                        <div className="quantity-control" aria-label={`Quantity for ${item.name}`}>
+                          <button type="button" onClick={() => changeQuantity(item.name, item.quantity - 1)} aria-label={`Remove one ${item.name}`}>−</button>
+                          <span>{item.quantity}</span>
+                          <button type="button" onClick={() => changeQuantity(item.name, item.quantity + 1)} aria-label={`Add one ${item.name}`}>+</button>
+                        </div>
+                      </div>
+                      <div className="cart-item-total">
+                        <strong>{formatPrice(item.price * item.quantity)}</strong>
+                        <button type="button" onClick={() => changeQuantity(item.name, 0)}>Remove</button>
+                      </div>
+                    </article>
+                  )) : (
+                    <div className="empty-cart"><span>▱</span><h3>Your cart is empty</h3><p>Add products from the catalogue to continue.</p></div>
+                  )}
+                </div>
+
+                {cart.length > 0 && (
+                  <footer className="cart-footer">
+                    <div className="cart-total"><span>Estimated total</span><strong>{formatPrice(cartTotal)}</strong></div>
+                    <p><span>✓</span> No online payment. The shop will confirm stock and final price on WhatsApp.</p>
+                    <button className="cart-checkout-button" type="button" onClick={() => setCheckoutOpen(true)}>
+                      Continue with your details <span aria-hidden="true">→</span>
+                    </button>
+                    <button className="continue-shopping" type="button" onClick={() => setCartOpen(false)}>Continue shopping</button>
+                  </footer>
+                )}
+              </>
+            ) : (
+              <form className="checkout-form" onSubmit={sendOrder}>
+                <button className="checkout-back" type="button" onClick={() => setCheckoutOpen(false)}>← Back to cart</button>
+                <div className="checkout-note"><span aria-hidden="true">✓</span><p><strong>No payment needed</strong>Your request opens in WhatsApp for confirmation.</p></div>
+
+                <label>
+                  <span>Full name</span>
+                  <input name="name" type="text" autoComplete="name" placeholder="Enter your full name" required minLength={2} />
+                </label>
+                <label>
+                  <span>Mobile number</span>
+                  <input name="mobile" type="tel" autoComplete="tel" inputMode="tel" placeholder="10-digit mobile number" required pattern="[0-9+ ()-]{10,18}" />
+                </label>
+                <label>
+                  <span>Email address</span>
+                  <input name="email" type="email" autoComplete="email" placeholder="you@example.com" required />
+                </label>
+                <label>
+                  <span>Delivery address</span>
+                  <textarea name="address" autoComplete="street-address" placeholder="House, street, area, city and PIN code" required minLength={10} rows={4} />
+                </label>
+
+                <div className="checkout-summary">
+                  <div><strong>Selected products</strong><span>{cartCount} {cartCount === 1 ? "item" : "items"}</span></div>
+                  <ul>
+                    {cart.map((item) => <li key={item.name}><span>{item.name} × {item.quantity}</span><strong>{formatPrice(item.price * item.quantity)}</strong></li>)}
+                  </ul>
+                  <div className="checkout-summary-total"><span>Estimated total</span><strong>{formatPrice(cartTotal)}</strong></div>
+                </div>
+
+                <button className="whatsapp-order-button" type="submit">
+                  <span aria-hidden="true">✆</span> Send selected items via WhatsApp
+                </button>
+                <p className="form-disclaimer">Only the products shown above and your entered details will be included in the WhatsApp message.</p>
+              </form>
+            )}
+          </section>
+        </div>
+      )}
     </>
   );
 }
