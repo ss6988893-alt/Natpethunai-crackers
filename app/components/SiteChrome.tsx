@@ -2,16 +2,16 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const phonePrimary = "+918524090862";
 
 export default function SiteChrome({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showTop, setShowTop] = useState(false);
-  const [path, setPath] = useState("/");
+  const path = usePathname();
 
   useEffect(() => {
-    setPath(window.location.pathname);
     const onScroll = () => setShowTop(window.scrollY > 520);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -19,6 +19,10 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
   }, []);
 
   const closeMenu = () => setMenuOpen(false);
+
+  if (path.startsWith("/admin")) {
+    return <main>{children}</main>;
+  }
 
   return (
     <>
@@ -105,6 +109,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
             <a href="/products">Product catalogue</a>
             <a href="/#combos">Combo boxes</a>
             <a href="/contact">Contact &amp; map</a>
+            <a href="/admin">Admin access</a>
           </div>
         </div>
         <div className="footer-bottom">
