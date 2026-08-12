@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { CART_STORAGE_KEY, parseStoredCart, type CartItem } from "../cart";
+import { downloadEstimatePdf, type EstimateCustomer } from "../estimate-pdf";
 
 const priceFormatter = new Intl.NumberFormat("en-IN");
 
@@ -9,9 +10,37 @@ function formatPrice(price: number) {
   return `₹${priceFormatter.format(price)}`;
 }
 
+function createEstimateNumber() {
+  const now = new Date();
+  const date = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("");
+  const unique = String(Date.now()).slice(-5);
+  return `NTC-${date}-${unique}`;
+}
+
+function estimateDate() {
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date());
+}
+
+function customerFromForm(form: FormData): EstimateCustomer {
+  return {
+    name: String(form.get("name") ?? ""),
+    mobile: String(form.get("mobile") ?? ""),
+    email: String(form.get("email") ?? "") || undefined,
+    address: String(form.get("address") ?? ""),
+  };
+}
+
 export default function CheckoutContent() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [estimateNumber] = useState(createEstimateNumber);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState("");
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     setCart(parseStoredCart(window.localStorage.getItem(CART_STORAGE_KEY)));
@@ -21,36 +50,87 @@ export default function CheckoutContent() {
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
   const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
 
-  const submitOrder = (event: FormEvent<HTMLFormElement>) => {
+  const estimateDetails = (form: FormData) => ({
+    estimateNumber,
+    date: estimateDate(),
+    customer: customerFromForm(form),
+    items: cart,
+  });
+
+  const downloadPdf = async () => {
+    const form = formRef.current;
+    if (!form || !form.reportValidity()) return;
+    setGeneratingPdf(true);
+    setPdfError("");
+    try {
+      await downloadEstimatePdf(estimateDetails(new FormData(form)));
+    } catch {
+      setPdfError("The estimate PDF could not be created. Please try again.");
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
+  const submitOrder = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!cart.length) return;
 
     const form = new FormData(event.currentTarget);
+    const customer = customerFromForm(form);
+    const originalSubtotal = cart.reduce(
+      (total, item) => total + (item.originalPrice ?? Math.round(item.price / 0.3)) * item.quantity,
+      0,
+    );
+    const discount = originalSubtotal - cartTotal;
     const productLines = cart.map(
       (item, index) =>
-        `${index + 1}. ${item.name} x ${item.quantity} | ${formatPrice(item.price)} each | ${formatPrice(item.price * item.quantity)}`,
+        `${index + 1}. ${item.name}\n   Qty: ${item.quantity} | Rate: ${formatPrice(item.price)} | Amount: ${formatPrice(item.price * item.quantity)}`,
     );
     const message = [
-      "ORDER ENQUIRY - NATPE THUNAI CRACKERS",
+      "*NATPE THUNAI CRACKERS*",
+      "*ORDER ESTIMATE - NOT A TAX INVOICE*",
+      "Athupalayam Stop, Sivakasi Road, Virudhunagar, Tamil Nadu",
+      "Mobile: +91 85240 90862 / +91 83448 06268",
       "",
-      "CUSTOMER DETAILS",
-      `Name: ${form.get("name")}`,
-      `Mobile: ${form.get("mobile")}`,
-      `Address: ${form.get("address")}`,
+      `Estimate No: ${estimateNumber}`,
+      `Date: ${estimateDate()}`,
       "",
-      "SELECTED PRODUCTS",
+      "*CUSTOMER DETAILS*",
+      `Name: ${customer.name}`,
+      `Mobile: ${customer.mobile}`,
+      ...(customer.email ? [`Email: ${customer.email}`] : []),
+      `Address: ${customer.address}`,
+      "",
+      "*SELECTED PRODUCTS*",
       ...productLines,
       "",
-      `Estimated total: ${formatPrice(cartTotal)}`,
+      `Sub Total: ${formatPrice(originalSubtotal)}`,
+      `Discount (70%): -${formatPrice(discount)}`,
+      `*ESTIMATED TOTAL: ${formatPrice(cartTotal)}*`,
       "",
-      "No online payment has been made. Please confirm availability and the final order price.",
+      `Total items: ${cartCount}`,
+      "GST/Tax: To be confirmed by the shop.",
+      "No online payment has been made.",
+      "Please confirm availability, applicable tax and the final payable amount.",
     ].join("\n");
 
-    window.open(
-      `https://wa.me/918524090862?text=${encodeURIComponent(message)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
+    const whatsappWindow = window.open("", "_blank");
+    setGeneratingPdf(true);
+    setPdfError("");
+    try {
+      await downloadEstimatePdf(estimateDetails(form));
+      const whatsappUrl = `https://wa.me/918524090862?text=${encodeURIComponent(message)}`;
+      if (whatsappWindow) {
+        whatsappWindow.location.href = whatsappUrl;
+      } else {
+        window.location.href = whatsappUrl;
+      }
+    } catch {
+      whatsappWindow?.close();
+      setPdfError("The estimate PDF could not be created. Please try again.");
+    } finally {
+      setGeneratingPdf(false);
+    }
   };
 
   if (!loaded) {
@@ -79,10 +159,10 @@ export default function CheckoutContent() {
       </div>
 
       <div className="checkout-layout">
-        <form className="checkout-page-form" onSubmit={submitOrder}>
+        <form className="checkout-page-form" onSubmit={submitOrder} ref={formRef}>
           <div className="checkout-form-heading">
             <span>01</span>
-            <div><h2>Customer information</h2><p>All fields are required to prepare your order request.</p></div>
+            <div><h2>Customer information</h2><p>Name, mobile number and full address are required.</p></div>
           </div>
 
           <label>
@@ -94,19 +174,29 @@ export default function CheckoutContent() {
             <input name="mobile" type="tel" autoComplete="tel" inputMode="tel" placeholder="Enter your 10-digit mobile number" required pattern="[0-9+ ()-]{10,18}" />
           </label>
           <label>
+            <span>Email address <small>(optional)</small></span>
+            <input name="email" type="email" autoComplete="email" placeholder="Enter your email address" />
+          </label>
+          <label>
             <span>Full address</span>
             <textarea name="address" autoComplete="street-address" placeholder="House number, street, area, city and PIN code" required minLength={10} rows={5} />
           </label>
 
           <div className="checkout-no-payment">
             <span aria-hidden="true">✓</span>
-            <p><strong>No website payment</strong>You only send an order enquiry. Our shop confirms availability and final price on WhatsApp.</p>
+            <p><strong>Estimate PDF - no website payment</strong>Your PDF downloads first, then WhatsApp opens with the same bill-style order details. The shop confirms tax and final price.</p>
           </div>
 
-          <button className="whatsapp-order-button" type="submit">
-            <span aria-hidden="true">✆</span> Submit order form to WhatsApp
-          </button>
-          <p className="form-disclaimer">This is the only button that opens WhatsApp. No product button opens WhatsApp individually.</p>
+          <div className="estimate-actions">
+            <button className="estimate-download-button" type="button" onClick={downloadPdf} disabled={generatingPdf}>
+              <span aria-hidden="true">↓</span> {generatingPdf ? "Creating PDF..." : "Download estimate PDF"}
+            </button>
+            <button className="whatsapp-order-button" type="submit" disabled={generatingPdf}>
+              <span aria-hidden="true">✆</span> {generatingPdf ? "Preparing estimate..." : "Submit estimate to WhatsApp"}
+            </button>
+          </div>
+          {pdfError && <p className="estimate-error" role="alert">{pdfError}</p>}
+          <p className="form-disclaimer">WhatsApp cannot attach a website-generated PDF automatically. The PDF downloads to the customer&apos;s device, while the full estimate details are placed directly in the WhatsApp message.</p>
         </form>
 
         <aside className="checkout-order-card" aria-label="Selected product summary">

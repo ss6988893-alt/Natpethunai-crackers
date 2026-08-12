@@ -139,15 +139,17 @@ export default function ProductsContent() {
     };
   }, [cartOpen]);
 
-  const addToCart = (name: string, price: number) => {
+  const addToCart = (name: string, price: number, originalPrice: number) => {
     setCart((current) => {
       const existing = current.find((item) => item.name === name);
       if (existing) {
         return current.map((item) =>
-          item.name === name ? { ...item, quantity: item.quantity + 1 } : item,
+          item.name === name
+            ? { ...item, originalPrice, quantity: item.quantity + 1 }
+            : item,
         );
       }
-      return [...current, { name, price, quantity: 1 }];
+      return [...current, { name, price, originalPrice, quantity: 1 }];
     });
   };
 
@@ -252,7 +254,7 @@ export default function ProductsContent() {
                       <button
                         className={`product-enquire ${quantities[product.name] ? "is-added" : ""}`}
                         type="button"
-                        onClick={() => addToCart(product.name, offerPrice(product.originalPrice))}
+                        onClick={() => addToCart(product.name, offerPrice(product.originalPrice), product.originalPrice)}
                         aria-label={`Add ${product.name} to cart for ${formatPrice(offerPrice(product.originalPrice))}`}
                       >
                         {quantities[product.name]

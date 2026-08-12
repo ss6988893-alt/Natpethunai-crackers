@@ -3,6 +3,7 @@ export const CART_STORAGE_KEY = "natpe-thunai-cart";
 export type CartItem = {
   name: string;
   price: number;
+  originalPrice?: number;
   quantity: number;
 };
 
@@ -18,6 +19,8 @@ export function parseStoredCart(value: string | null): CartItem[] {
         typeof item.name === "string" &&
         typeof item.price === "number" &&
         Number.isFinite(item.price) &&
+        (item.originalPrice === undefined ||
+          (typeof item.originalPrice === "number" && Number.isFinite(item.originalPrice))) &&
         typeof item.quantity === "number" &&
         Number.isInteger(item.quantity) &&
         item.quantity > 0,

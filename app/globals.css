@@ -2206,6 +2206,7 @@ h2 em {
 .checkout-form-heading p { margin: 5px 0 0; color: #8d949a; font-size: 0.6rem; }
 .checkout-page-form > label { margin-bottom: 17px; display: grid; gap: 8px; }
 .checkout-page-form > label > span { color: #515861; font-size: 0.65rem; font-weight: 850; }
+.checkout-page-form > label > span small { color: #999f9f; font-size: 0.54rem; font-weight: 650; }
 .checkout-page-form input,
 .checkout-page-form textarea { width: 100%; padding: 14px 15px; color: #232a31; border: 1px solid #d9d9d5; border-radius: 10px; outline: 0; background: #fff; font-size: 0.73rem; transition: border-color 160ms ease, box-shadow 160ms ease; }
 .checkout-page-form textarea { resize: vertical; line-height: 1.6; }
@@ -2217,6 +2218,12 @@ h2 em {
 .checkout-no-payment > span { width: 29px; height: 29px; flex: 0 0 auto; display: grid; place-items: center; color: #fff; border-radius: 50%; background: #27945e; font-size: 0.67rem; }
 .checkout-no-payment p { margin: 0; display: grid; color: #678173; font-size: 0.6rem; line-height: 1.45; }
 .checkout-no-payment strong { color: #335d46; font-size: 0.7rem; }
+.estimate-actions { display: grid; grid-template-columns: 0.82fr 1.18fr; gap: 10px; }
+.estimate-download-button { min-height: 50px; padding: 12px 14px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #4b535b; border: 1px solid #d7d8d4; border-radius: 11px; background: #fff; font-size: 0.65rem; font-weight: 850; }
+.estimate-download-button:hover { border-color: #e27a50; color: #bd4d24; }
+.estimate-download-button:disabled,
+.whatsapp-order-button:disabled { cursor: wait; opacity: 0.68; }
+.estimate-error { margin: 11px 0 0; padding: 10px 12px; color: #9e352c; border-radius: 8px; background: #fff0ef; font-size: 0.6rem; }
 .checkout-order-items { display: grid; }
 .checkout-order-items article { padding: 15px 0; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 11px; border-bottom: 1px solid #e8e8e4; }
 .checkout-order-items article > div { width: 38px; height: 38px; display: grid; place-items: center; color: #d85b2a; border-radius: 10px; background: #f9ece5; }
@@ -2477,6 +2484,7 @@ h2 em {
   .checkout-form-heading h2 { font-size: 1.05rem; }
   .checkout-order-items article { grid-template-columns: auto 1fr; }
   .checkout-order-items article > b { grid-column: 2; }
+  .estimate-actions { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
